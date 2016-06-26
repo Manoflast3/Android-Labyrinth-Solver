@@ -50,7 +50,7 @@ class StepCounter implements SensorEventListener {
         period = true;
         location[0]=0;
         location[1]=0;
-        locView.setText(String.format("(%f,%f)",location[0],location[1]));
+        locView.setText(String.format("(%.2f,%.2f)",location[0],location[1]));
     }
 
 
@@ -81,7 +81,7 @@ class StepCounter implements SensorEventListener {
 
     protected float lastAcc = 0;
     public void onSensorChanged(SensorEvent se) {
-        float a = 0.9f;
+        float a = 0.6f;
         float current = a * se.values[2] + (1-a)*lastAcc;
         lastAcc = current;
         if((Math.abs(se.values[0])>8||Math.abs(se.values[1])>8||Math.abs(se.values[2])>8)){
@@ -96,6 +96,7 @@ class StepCounter implements SensorEventListener {
             }, delay);
         }else
         if(period) {
+            int temp = getDirection();
             dirView.setText(String.format("%d",getDirection()));
             if (state == 0) {
                 if (current > 0 && current < 0.5) {
@@ -142,9 +143,9 @@ class StepCounter implements SensorEventListener {
                 if (current > -0.5 && current < 0) {
                     totalStepCount++;
                     state = 0;
-                    location[0] += Math.cos(getDirection()/180);
-                    location[1] += Math.sin(getDirection()/180);
-                    locView.setText(String.format("(%f,%f)",location[0],location[1]));
+                    location[0] += Math.cos((double)temp*100/180/100*Math.PI);
+                    location[1] += Math.sin((double)temp*100/180/100*Math.PI);
+                    locView.setText(String.format("(%.2f,%.2f)",location[0],location[1]));
                 } else if (Math.abs(current) > 5) {
                     state = 0;
                 }
