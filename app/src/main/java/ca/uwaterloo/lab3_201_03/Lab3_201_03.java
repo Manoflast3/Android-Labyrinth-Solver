@@ -13,6 +13,7 @@ import android.widget.*;
 
 import java.util.Arrays;
 
+import ca.uwaterloo.map.MapView;
 import ca.uwaterloo.sensortoy.LineGraphView;
 
 public class Lab3_201_03 extends AppCompatActivity{
@@ -55,6 +56,11 @@ public class Lab3_201_03 extends AppCompatActivity{
 
         sensorManager.registerListener(orientation, mAccelerometer,SensorManager.SENSOR_DELAY_UI);
         sensorManager.registerListener(orientation, mMagnetometer,SensorManager.SENSOR_DELAY_UI);
+
+        // Map
+        MapView mv = new MapView ( getApplicationContext () , 400 , 400 , 60 , 60);
+        registerForContextMenu (mv);
+
 
 //
         LinearLayout linearLayout = (LinearLayout) findViewById(R.id.linear);
