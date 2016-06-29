@@ -7,37 +7,41 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.ContextMenu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.*;
 
 
 import java.util.Arrays;
 
-import ca.uwaterloo.map.MapView;
-import ca.uwaterloo.sensortoy.LineGraphView;
+import ca.uwaterloo.sensortoy.*;
 
 public class Lab3_201_03 extends AppCompatActivity{
     private SensorManager sensorManager;
     private Sensor accSensor;
     private LineGraphView graph;
 
-    private Sensor mAccelerometer;
-    private Sensor mMagnetometer;
+    private Sensor mAcc;
+    private Sensor mMag;
 
 
+    private MapView  mapView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lab3_201_03);
 
+        mapView = new  MapView(getApplicationContext(), 900, 900, 50, 50);
+
         // Locks Screen Orientation
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         accSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
-        mAccelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        mMagnetometer = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        mAcc = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        mMag = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
 
         TextView Current = (TextView)findViewById(R.id.Current);
         TextView Max = (TextView)findViewById(R.id.Max);
@@ -54,13 +58,8 @@ public class Lab3_201_03 extends AppCompatActivity{
         SensorEventListener counter = new StepCounter(viewComb, button, orientation);
         sensorManager.registerListener(counter, accSensor,SensorManager.SENSOR_DELAY_FASTEST);
 
-        sensorManager.registerListener(orientation, mAccelerometer,SensorManager.SENSOR_DELAY_UI);
-        sensorManager.registerListener(orientation, mMagnetometer,SensorManager.SENSOR_DELAY_UI);
-
-        // Map
-        MapView mv = new MapView ( getApplicationContext () , 400 , 400 , 60 , 60);
-        registerForContextMenu (mv);
-
+        sensorManager.registerListener(orientation, mAcc,SensorManager.SENSOR_DELAY_UI);
+        sensorManager.registerListener(orientation, mMag,SensorManager.SENSOR_DELAY_UI);
 
 //
         LinearLayout linearLayout = (LinearLayout) findViewById(R.id.linear);
@@ -73,6 +72,23 @@ public class Lab3_201_03 extends AppCompatActivity{
         SensorEventListener lineGraph = new LineGraphListener(graph, Sensor);
         sensorManager.registerListener(lineGraph, accSensor,SensorManager.SENSOR_DELAY_FASTEST);
 
+
+        registerForContextMenu(mapView);
+        NavigationalMap map = MapLoader.loadMap(getExternalFilesDir(null),"Lab-room-peninsula.svg");
+        mapView.setMap(map);
+        linearLayout.addView(mapView);
+    }
+    @Override
+    public void  onCreateContextMenu(ContextMenu  menu , View v, ContextMenu.ContextMenuInfo menuInfo)
+    {
+        super.onCreateContextMenu(menu , v, menuInfo);
+        mapView.onCreateContextMenu(menu , v, menuInfo);
     }
 
+
+    @Override
+    public  boolean  onContextItemSelected(MenuItem item)
+    {
+        return  super.onContextItemSelected(item) ||  mapView.onContextItemSelected(item);
+    }
 }

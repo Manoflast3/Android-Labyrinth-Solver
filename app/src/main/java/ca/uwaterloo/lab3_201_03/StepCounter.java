@@ -50,7 +50,7 @@ class StepCounter implements SensorEventListener {
         period = true;
         location[0]=0;
         location[1]=0;
-        locView.setText(String.format("(%.2f,%.2f)",location[0],location[1]));
+        locView.setText(String.format("(%.1f,%.1f)",location[0],location[1]));
     }
 
 
@@ -71,7 +71,7 @@ class StepCounter implements SensorEventListener {
         lastDir = current;
         this.direction = current;
         double temp = direction/Math.PI*180;
-        return (int)(temp/20)*20;
+        return (int)((temp+10)/10)*10;
     }
 
 
@@ -81,10 +81,10 @@ class StepCounter implements SensorEventListener {
 
     protected float lastAcc = 0;
     public void onSensorChanged(SensorEvent se) {
-        float a = 0.6f;
+        float a = 0.9f;
         float current = a * se.values[2] + (1-a)*lastAcc;
         lastAcc = current;
-        if((Math.abs(se.values[0])>8||Math.abs(se.values[1])>8||Math.abs(se.values[2])>8)){
+        if((Math.abs(se.values[0])>10||Math.abs(se.values[1])>10||Math.abs(se.values[2])>10)){
             resetCounter();
             Timer timer = new Timer();
             timer.schedule(new TimerTask() {
@@ -97,25 +97,25 @@ class StepCounter implements SensorEventListener {
         }else
         if(period) {
             int temp = getDirection();
-            dirView.setText(String.format("%d",getDirection()));
+            dirView.setText(String.format("%d",temp));
             if (state == 0) {
                 if (current > 0 && current < 0.5) {
                     state = 1;
                 }
             } else if (state == 1) {
-                if (current > 1 && current < 2) {
+                if (current > 0.5 && current < 2) {
                     state = 2;
                 } else if (Math.abs(current) > 6) {
                     state = 0;
                 }
             }else if (state == 2) {
-                if (current > 1.4 && current < 4) {
+                if (current > 1.2 && current < 4) {
                     state = 3;
                 } else if (Math.abs(current) > 6) {
                     state = 0;
                 }
             }else if (state == 3) {
-                if (current > 0 && current < 1) {
+                if (current > -0.5 && current < 0.5) {
                     state = 4;
                 } else if (Math.abs(current) > 6) {
                     state = 0;
@@ -133,7 +133,7 @@ class StepCounter implements SensorEventListener {
                     state = 0;
                 }
             } else if (state == 6) {
-                if (current > -4 && current < -1.4) {
+                if (current > -5 && current < -1.2) {
                     state = 7;
                 } else if (Math.abs(current) > 6) {
                     state = 0;
@@ -145,7 +145,7 @@ class StepCounter implements SensorEventListener {
                     state = 0;
                     location[0] += Math.cos((double)temp*100/180/100*Math.PI);
                     location[1] += Math.sin((double)temp*100/180/100*Math.PI);
-                    locView.setText(String.format("(%.2f,%.2f)",location[0],location[1]));
+                    locView.setText(String.format("(%.1f,%.1f)",location[0],location[1]));
                 } else if (Math.abs(current) > 5) {
                     state = 0;
                 }
