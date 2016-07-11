@@ -1,5 +1,6 @@
 package ca.uwaterloo.lab3_201_03;
 
+import android.graphics.PointF;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -9,6 +10,7 @@ import android.widget.TextView;
 
 import org.w3c.dom.Text;
 
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -22,7 +24,7 @@ class StepCounter implements SensorEventListener {
     private TextView stepView, dirView, locView;
     private Orientation orientation;
     private float direction;
-    private double[] location = {0,0};;
+    private double[] location = {0,0};
     //put in 2 textviews, first is current and second is max.
     public StepCounter(TextView[] viewComb, Button button, Orientation orientation) {
         stepView = viewComb[0];
@@ -73,10 +75,6 @@ class StepCounter implements SensorEventListener {
         double temp = direction/Math.PI*180;
         return (int)((temp+10)/10)*10;
     }
-
-
-
-
 
 
     protected float lastAcc = 0;
@@ -155,6 +153,7 @@ class StepCounter implements SensorEventListener {
             stepView.setText(Integer.toString(totalStepCount));
         
     }
+
 
 
 
