@@ -2,6 +2,7 @@ package ca.uwaterloo.lab3_201_03;
 
 import android.graphics.PointF;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import ca.uwaterloo.map.LineSegment;
@@ -14,7 +15,7 @@ import ca.uwaterloo.map.NavigationalMap;
  */
 public class PathFinder {
     // TODO These Lists need to be initialized
-    private List<PointF> userPath;
+    private List<PointF> userPath = new ArrayList<PointF>();
     // This is the favored direction for the Pledge Algorithm
     private String cDirection = "up";
     private int sumofTurns = 0;
@@ -82,7 +83,6 @@ public class PathFinder {
                         } else {
                             takeStep(temppoint, cDirection);
                         }
-                        //
                         break;
 
                     case "down":
@@ -180,6 +180,12 @@ public class PathFinder {
                     break;
             }
             sumofTurns++;
+        }
+        else if (source.calculateIntersections(forwardPoint, userEnd).isEmpty()){
+            takeStep(temppoint, cDirection);
+            lastpoint.set(temppoint);
+            userPath.add(temppoint);
+
         }
         // if the next step goes past the current wall.
         else if (source.calculateIntersections(forwardPoint, refPoint).isEmpty()) {
