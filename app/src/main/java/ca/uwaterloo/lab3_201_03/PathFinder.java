@@ -6,9 +6,6 @@ import java.util.List;
 
 import ca.uwaterloo.map.LineSegment;
 import ca.uwaterloo.map.NavigationalMap;
-import ca.uwaterloo.map.NavigationalMap.*;
-import ca.uwaterloo.map.LineSegment.*;
-import ca.uwaterloo.map.VectorUtils.*;
 
 /**
  * Created by manof on 2016-07-10.
@@ -21,10 +18,10 @@ public class PathFinder {
     private String cDirection = "up";
     private int sumofTurns = 0;
 
-    // I need the value of the preset user location!
-    private PointF userStart;
+    // I need the value of the current user location, and the Destination (userend)!
+    private PointF currentLocation;
     private PointF userEnd;
-    private PointF lastpoint = userStart;
+    private PointF lastpoint = currentLocation;
     private PointF temppoint = lastpoint;
     private final float stepValue = 0.5f;
 
@@ -37,10 +34,10 @@ public class PathFinder {
 
     public List<PointF> findPath(NavigationalMap source){
 
-        userPath.add(userStart);
+        userPath.add(currentLocation);
 
         // If a direct path can be made.
-        if(source.calculateIntersections(userStart, userEnd).isEmpty()){
+        if(source.calculateIntersections(currentLocation, userEnd).isEmpty()){
 
         }
         else{
@@ -138,11 +135,8 @@ public class PathFinder {
         // if the next step goes through a wall.
         if (!source.calculateIntersections(lastpoint, temppoint).isEmpty()){
             lastpoint.set(source.calculateIntersections(lastpoint, temppoint).get(0).getPoint());
-            followedWall = source.getGeometryAtPoint(lastpoint).get(0);
+            // followedWall = source.getGeometryAtPoint(lastpoint).get(0);
             switch (cDirection) {
-                case "up":
-                    cDirection = "right";
-                    break;
                 case "down":
                     cDirection = "left";
                     break;
@@ -157,24 +151,40 @@ public class PathFinder {
         }
         // if the next step goes past the currently followed wall.
         // TODO check if these values are correct for Max and Min fns.
-        else if (temppoint.y > Math.max(followedWall.start.y, followedWall.end.y)){
-            lastpoint.set(Math.min(followedWall.start.x, followedWall.end.x), Math.max(followedWall.start.y, followedWall.end.y));
-            followedWall = source.getGeometryAtPoint(lastpoint).get(0);
-            switch (cDirection) {
-                case "up":
-                    cDirection = "left";
-                    break;
-                case "down":
+        // TODO Implement wall following with another temp point
+        switch (cDirection) {
+            case "down":
+                if (temppoint.y < Math.min(followedWall.start.y, followedWall.end.y)){
                     cDirection = "right";
-                    break;
-                case "right":
+                    lastpoint.set(Math.max(followedWall.start.x, followedWall.end.x), Math.min(followedWall.start.y, followedWall.end.y));
+                }
+                break;
+            case "right":
+                if (temppoint.y > Math.max(followedWall.start.x, followedWall.end.x)) {
                     cDirection = "up";
-                    break;
-                case "left":
+                    lastpoint.set(Math.max(followedWall.start.x, followedWall.end.x), Math.max(followedWall.start.y, followedWall.end.y));
+                }
+                break;
+            case "left":
+                if (temppoint.y < Math.min(followedWall.start.y, followedWall.end.y)) {
                     cDirection = "down";
-                    break;
-            }
-            sumofTurns--;
+                    lastpoint.set(Math.min(followedWall.start.x, followedWall.end.x), Math.min(followedWall.start.y, followedWall.end.y));
+                }
+                break;
+        }
+
+        // Update followedWall
+        List<LineSegment> wallsAtPoint = source.getGeometryAtPoint(lastpoint);
+        if (wallsAtPoint.size()==1) {
+            followedWall = wallsAtPoint.get(0);
+        }
+        else if (wallsAtPoint.size()>1){
+            followedWall = (!wallsAtPoint.get(0).theSame(followedWall)) ? wallsAtPoint.get(0) : wallsAtPoint.get(1);
+        }
+        else {
+            System.out.println("Error!");
+        }
+        sumofTurns--;
         }
     }
 }
