@@ -13,21 +13,23 @@ import ca.uwaterloo.map.NavigationalMap;
  * This is a findPath algorithm using the Pledge Algorithm
  */
 public class PathFinder {
+    // TODO These Lists need to be initialized
     private List<PointF> userPath;
-    private List<LineSegment> nearestParallelWalls;
+    // This is the favored direction for the Pledge Algorithm
     private String cDirection = "up";
     private int sumofTurns = 0;
 
-    // I need the value of the current user location, and the Destination (userend)!
+    // TODO need the value of the current user location, and the Destination (userend)!
     private PointF currentLocation;
     private PointF userEnd;
+
     private PointF lastpoint = currentLocation;
     private PointF temppoint = lastpoint;
     private final float stepValue = 0.5f;
 
     private LineSegment followedWall;
 
-    // I also need the angle of the map. This angle is measured from the vertical, from 0 to 180 degrees.
+    // TODO need the angle of the map. This angle is measured from the vertical, from 0 to 180 degrees.
     // (doesn't go to 180 though).
     private final double angle = 0.0f;
 
@@ -65,7 +67,16 @@ public class PathFinder {
                                 }
                                 else {
                                     lastpoint.set(Math.min(followedWall.start.x, followedWall.end.x), Math.max(followedWall.start.y, followedWall.end.y));
-                                    followedWall = source.getGeometryAtPoint(lastpoint).get(0);
+                                    List<LineSegment> wallsAtPoint = source.getGeometryAtPoint(lastpoint);
+                                    if (wallsAtPoint.size()==1) {
+                                        followedWall = wallsAtPoint.get(0);
+                                    }
+                                    else if (wallsAtPoint.size()>1){
+                                        followedWall = (!wallsAtPoint.get(0).theSame(followedWall)) ? wallsAtPoint.get(0) : wallsAtPoint.get(1);
+                                    }
+                                    else {
+                                        System.out.println("Error!");
+                                    }
                                     cDirection = "left";
                                     sumofTurns--;
                                 }
@@ -135,7 +146,7 @@ public class PathFinder {
         // if the next step goes through a wall.
         if (!source.calculateIntersections(lastpoint, temppoint).isEmpty()){
             lastpoint.set(source.calculateIntersections(lastpoint, temppoint).get(0).getPoint());
-            // followedWall = source.getGeometryAtPoint(lastpoint).get(0);
+            followedWall = source.getGeometryAtPoint(lastpoint).get(0);
             switch (cDirection) {
                 case "down":
                     cDirection = "left";
@@ -187,5 +198,4 @@ public class PathFinder {
         sumofTurns--;
         }
     }
-}
 
