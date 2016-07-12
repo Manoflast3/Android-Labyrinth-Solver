@@ -26,14 +26,11 @@ public class PathFinder {
 
     private PointF lastpoint = currentLocation;
     private PointF temppoint = lastpoint;
-    // TODO finish implementing forwardpoint logic
     private PointF forwardPoint = lastpoint;
     private PointF refPoint = lastpoint;
 
     private final float stepValue = 0.5f;
     private final float smallOffset = 0.1f;
-
-    private LineSegment followedWall;
 
     // TODO need the angle of the map. This angle is measured from the vertical, from 0 to 180 degrees.
     // (doesn't go to 180 though).
@@ -107,7 +104,6 @@ public class PathFinder {
         return userPath;
     }
 
-    // TODO Implement forwardpoint into setupPath
     public String setupPath(NavigationalMap source) {
         forwardPoint.set(temppoint);
         takeStep(forwardPoint, cDirection);
@@ -123,8 +119,6 @@ public class PathFinder {
         if (lastpoint.x != temppoint.x || lastpoint.y != temppoint.y) {
             lastpoint.set(temppoint);
         }
-
-        // followedWall = source.getGeometryAtPoint(lastpoint).get(0);
         cDirection = "right";
         sumofTurns++;
         return cDirection;
@@ -210,52 +204,4 @@ public class PathFinder {
     }
 }
 
-        /*
-        Deprecated
-        // if the next step goes past the currently followed wall.
-        // TODO check if these values are correct for Max and Min fns.
-        // TODO Implement wall following with another temp point
-        switch (cDirection) {
-            case "down":
-                if (temppoint.y < Math.min(followedWall.start.y, followedWall.end.y)){
-                    cDirection = "right";
-                    lastpoint.set(Math.max(followedWall.start.x, followedWall.end.x), Math.min(followedWall.start.y, followedWall.end.y));
-                    //TODO see if we need this offset or not.
-                    temppoint.set(lastpoint.x, lastpoint.y);
-                    userPath.add(lastpoint);
-                }
-                break;
-            case "right":
-                if (temppoint.y > Math.max(followedWall.start.x, followedWall.end.x)) {
-                    cDirection = "up";
-                    lastpoint.set(Math.max(followedWall.start.x, followedWall.end.x), Math.max(followedWall.start.y, followedWall.end.y));
-                    temppoint.set(lastpoint.x, lastpoint.y);
-                    userPath.add(lastpoint);
-                }
-                break;
-            case "left":
-                if (temppoint.y < Math.min(followedWall.start.y, followedWall.end.y)) {
-                    cDirection = "down";
-                    lastpoint.set(Math.min(followedWall.start.x, followedWall.end.x), Math.min(followedWall.start.y, followedWall.end.y));
-                    temppoint.set(lastpoint.x, lastpoint.y);
-                    userPath.add(lastpoint);
-                }
-                break;
-        }
-        */
-        // Update followedWall
-        /* TODO Deprecated
-        List<LineSegment> wallsAtPoint = source.getGeometryAtPoint(lastpoint);
-        if (wallsAtPoint.size()==1) {
-            followedWall = wallsAtPoint.get(0);
-        }
-        else if (wallsAtPoint.size()>1){
-            followedWall = (!wallsAtPoint.get(0).theSame(followedWall)) ? wallsAtPoint.get(0) : wallsAtPoint.get(1);
-        }
-        else {
-            System.out.println("Error!");
-        }
-        sumofTurns--;
-        }
-        */
 
