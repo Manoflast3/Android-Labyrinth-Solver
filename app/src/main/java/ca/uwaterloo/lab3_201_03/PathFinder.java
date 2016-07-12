@@ -21,8 +21,8 @@ public class PathFinder {
     private int sumofTurns = 0;
 
     // TODO need the value of the current user location, and the Destination (userend)!
-    private PointF currentLocation;
-    private PointF userEnd;
+    private PointF currentLocation = new PointF();
+    private PointF userEnd = new PointF();
 
     public void setCurentLoc(PointF current){
         currentLocation = current;
@@ -32,13 +32,12 @@ public class PathFinder {
     }
 
 
-    private PointF lastpoint = currentLocation;
-    private PointF temppoint = lastpoint;
-    private PointF forwardPoint = lastpoint;
-    private PointF refPoint = lastpoint;
+    private PointF lastpoint = new PointF(currentLocation.x , currentLocation.y);
+    private PointF temppoint = new PointF(currentLocation.x , currentLocation.y);
+    private PointF forwardPoint = new PointF(currentLocation.x , currentLocation.y);
+    private PointF refPoint = new PointF(currentLocation.x , currentLocation.y);
 
-    private final float stepValue = 0.5f;
-    private final float smallOffset = 0.1f;
+    private final float stepValue = 1.5f;
 
     // TODO need the angle of the map. This angle is measured from the vertical, from 0 to 180 degrees.
     // (doesn't go to 180 though).
@@ -77,17 +76,16 @@ public class PathFinder {
                         }
                         // if the next step goes past the current wall.
                         else if (source.calculateIntersections(forwardPoint, refPoint).isEmpty()) {
-                            if (sumofTurns == 0){
+                            //if (sumofTurns == 0){
                                 // Keep going the same direction.
-                                takeStep(temppoint, cDirection);
-                            }
-                            else {
+                             //   takeStep(temppoint, cDirection);
+                            //}
+
                                 temppoint.set(forwardPoint);
                                 lastpoint.set(temppoint);
                                 userPath.add(lastpoint);
                                 cDirection = "left";
                                 sumofTurns--;
-                            }
                         } else {
                             takeStep(temppoint, cDirection);
                         }
