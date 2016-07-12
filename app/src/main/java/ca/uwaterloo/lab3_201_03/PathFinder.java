@@ -58,33 +58,36 @@ public class PathFinder {
                                 lastpoint.set(source.calculateIntersections(lastpoint, temppoint).get(0).getPoint());
                                 followedWall = source.getGeometryAtPoint(lastpoint).get(0);
                                 cDirection = "right";
+                                sumofTurns++;
                             }
                             // if the next step goes past the currently followed wall.
+                            // TODO check if these values are correct for Max and Min fns.
                             else if (temppoint.y > Math.max(followedWall.start.y, followedWall.end.y)){
-                                lastpoint.set(Math.min(followedWall.start.x, followedWall.end.x), Math.max(followedWall.start.y, followedWall.end.y));
-                                followedWall = source.getGeometryAtPoint(lastpoint).get(0);
-                                cDirection = "left";
-                            }
-
-                            // take another step. 
-                            else {
-                                takeStep(temppoint, cDirection);
+                                if (sumofTurns==0){
+                                    cDirection = "up";
+                                }
+                                else {
+                                    lastpoint.set(Math.min(followedWall.start.x, followedWall.end.x), Math.max(followedWall.start.y, followedWall.end.y));
+                                    followedWall = source.getGeometryAtPoint(lastpoint).get(0);
+                                    cDirection = "left";
+                                    sumofTurns--;
+                                }
                             }
                             break;
 
                         case "down":
-
+                            followWall(source);
                             break;
 
                         case "right":
-
+                            followWall(source);
                             break;
 
                         case "left":
-
+                            followWall(source);
                             break;
-
                         default:
+                            break;
                     }
                 }
             }
@@ -130,6 +133,49 @@ public class PathFinder {
         return temppoint;
     }
 
-
-
+    public void followWall(NavigationalMap source){
+        takeStep(temppoint, cDirection);
+        // if the next step goes through a wall.
+        if (!source.calculateIntersections(lastpoint, temppoint).isEmpty()){
+            lastpoint.set(source.calculateIntersections(lastpoint, temppoint).get(0).getPoint());
+            followedWall = source.getGeometryAtPoint(lastpoint).get(0);
+            switch (cDirection) {
+                case "up":
+                    cDirection = "right";
+                    break;
+                case "down":
+                    cDirection = "left";
+                    break;
+                case "right":
+                    cDirection = "down";
+                    break;
+                case "left":
+                    cDirection = "up";
+                    break;
+            }
+            sumofTurns++;
+        }
+        // if the next step goes past the currently followed wall.
+        // TODO check if these values are correct for Max and Min fns.
+        else if (temppoint.y > Math.max(followedWall.start.y, followedWall.end.y)){
+            lastpoint.set(Math.min(followedWall.start.x, followedWall.end.x), Math.max(followedWall.start.y, followedWall.end.y));
+            followedWall = source.getGeometryAtPoint(lastpoint).get(0);
+            switch (cDirection) {
+                case "up":
+                    cDirection = "left";
+                    break;
+                case "down":
+                    cDirection = "right";
+                    break;
+                case "right":
+                    cDirection = "up";
+                    break;
+                case "left":
+                    cDirection = "down";
+                    break;
+            }
+            sumofTurns--;
+        }
+    }
 }
+
