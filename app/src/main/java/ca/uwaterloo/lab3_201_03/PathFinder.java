@@ -49,44 +49,40 @@ public class PathFinder {
         } else {
             setupPath(source);
             userPath.add(lastpoint);
-            takeStep(temppoint, cDirection)
+            takeStep(temppoint, cDirection);
             takeStep(forwardPoint, cDirection);
 
             // Proceed with Wall following algorithm IF the solution has not yet been found.
             while (!source.calculateIntersections(lastpoint, userEnd).isEmpty()) {
                 switch (cDirection) {
                     case "up":
-                        takeStep(temppoint, cDirection);
+                        takeStep(forwardPoint, cDirection);
+                        refPoint.set(forwardPoint);
+                        takeStep(refPoint, "left");
                         // if the next step goes through a wall.
-                        if (!source.calculateIntersections(lastpoint, temppoint).isEmpty()) {
-                            lastpoint.set(source.calculateIntersections(lastpoint, temppoint).get(0).getPoint());
-                            temppoint.set(lastpoint);
+                        if (!source.calculateIntersections(temppoint, forwardPoint).isEmpty()) {
+                            lastpoint.set(temppoint);
                             userPath.add(lastpoint);
-                            followedWall = source.getGeometryAtPoint(lastpoint).get(0);
                             cDirection = "right";
                             sumofTurns++;
                         }
-                        // if the next step goes past the currently followed wall.
-                        // TODO check if these values are correct for Max and Min fns.
-                        else if (temppoint.y > Math.max(followedWall.start.y, followedWall.end.y)) {
-                            if (sumofTurns == 0) {
-                                cDirection = "up";
-                            } else {
-                                lastpoint.set(Math.min(followedWall.start.x, followedWall.end.x), Math.max(followedWall.start.y, followedWall.end.y));
-                                List<LineSegment> wallsAtPoint = source.getGeometryAtPoint(lastpoint);
-                                temppoint = lastpoint;
-                                if (wallsAtPoint.size() == 1) {
-                                    followedWall = wallsAtPoint.get(0);
-                                } else if (wallsAtPoint.size() > 1) {
-                                    followedWall = (!wallsAtPoint.get(0).theSame(followedWall)) ? wallsAtPoint.get(0) : wallsAtPoint.get(1);
-                                } else {
-                                    System.out.println("Error!");
-                                }
-                                cDirection = "left";
+                        // if the next step goes past the current wall.
+                        else if (source.calculateIntersections(forwardPoint, refPoint).isEmpty()) {
+                            if (sumofTurns == 0){
+                                // Keep going the same direction.
+                                takeStep(temppoint, cDirection);
+                            }
+                            else {
+                                temppoint.set(forwardPoint);
+                                lastpoint.set(temppoint);
                                 userPath.add(lastpoint);
+                                cDirection = "left";
                                 sumofTurns--;
                             }
+                        } else {
+                            takeStep(temppoint, cDirection);
                         }
+                        //
                         break;
 
                     case "down":
