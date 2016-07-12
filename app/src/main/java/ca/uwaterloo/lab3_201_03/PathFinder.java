@@ -5,8 +5,8 @@ import android.graphics.PointF;
 import java.util.ArrayList;
 import java.util.List;
 
-import ca.uwaterloo.map.LineSegment;
-import ca.uwaterloo.map.NavigationalMap;
+import ca.uwaterloo.sensortoy.LineSegment;
+import ca.uwaterloo.sensortoy.NavigationalMap;
 
 /**
  * Created by Derek on 2016-07-10.
@@ -17,8 +17,6 @@ public class PathFinder {
     // TODO These Lists need to be initialized
     private List<PointF> userPath = new ArrayList<PointF>();
     // This is the favored direction for the Pledge Algorithm
-    // Sum of turns is the net sum of turns. If it is 0 while we are headed the favored direction,
-    // we stop following the current wall and keep going.
     private String cDirection = "up";
     private int sumofTurns = 0;
 
@@ -26,16 +24,28 @@ public class PathFinder {
     private PointF currentLocation;
     private PointF userEnd;
 
+    public void setCurentLoc(PointF current){
+        currentLocation = current;
+    }
+    public void setUserEnd(PointF destination){
+        userEnd = destination;
+    }
+
+
     private PointF lastpoint = currentLocation;
     private PointF temppoint = lastpoint;
     private PointF forwardPoint = lastpoint;
     private PointF refPoint = lastpoint;
 
     private final float stepValue = 0.5f;
+    private final float smallOffset = 0.1f;
 
     // TODO need the angle of the map. This angle is measured from the vertical, from 0 to 180 degrees.
     // (doesn't go to 180 though).
-    private final double angle = 0.0f;
+    private double angle = 0.0f;
+    public void setAngle(double angle){
+        this.angle = angle;
+    }
 
 
     public List<PointF> findPath(NavigationalMap source) {
@@ -204,5 +214,3 @@ public class PathFinder {
         }
     }
 }
-
-

@@ -2,6 +2,7 @@ package ca.uwaterloo.lab3_201_03;
 
 import android.content.Context;
 import android.content.pm.ActivityInfo;
+import android.graphics.PointF;
 import android.hardware.Sensor;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
@@ -33,7 +34,7 @@ public class Lab3_201_03 extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lab3_201_03);
 
-        mapView = new  MapView(getApplicationContext(), 900, 900, 50, 50);
+        mapView = new  MapView(getApplicationContext(), 800, 800, 35, 35);
 
         // Locks Screen Orientation
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
@@ -49,20 +50,18 @@ public class Lab3_201_03 extends AppCompatActivity{
         TextView OView = (TextView) findViewById(R.id.orientation);
 
         TextView stepCount = (TextView)findViewById(R.id.stepCount);
-        Button button = (Button) findViewById(R.id.start);
+        Button button = (Button) findViewById(R.id.start2);
         TextView dirView = (TextView)findViewById(R.id.direction);
         TextView locView = (TextView)findViewById(R.id.location);
         TextView[] viewComb = {stepCount, dirView, locView};
         Orientation orientation = new Orientation(OView);
 
-        SensorEventListener counter = new StepCounter(viewComb, button, orientation);
-        sensorManager.registerListener(counter, accSensor,SensorManager.SENSOR_DELAY_FASTEST);
-
-        sensorManager.registerListener(orientation, mAcc,SensorManager.SENSOR_DELAY_UI);
-        sensorManager.registerListener(orientation, mMag,SensorManager.SENSOR_DELAY_UI);
 
 //
         LinearLayout linearLayout = (LinearLayout) findViewById(R.id.linear);
+        LinearLayout mapLayout = (LinearLayout) findViewById(R.id.map);
+
+
         graph = new LineGraphView(getApplicationContext(),
                 100,
                 Arrays.asList("x", "y", "z"));
@@ -75,8 +74,18 @@ public class Lab3_201_03 extends AppCompatActivity{
 
         registerForContextMenu(mapView);
         NavigationalMap map = MapLoader.loadMap(getExternalFilesDir(null),"Lab-room-peninsula.svg");
+        newListener listener = new newListener(map);
+        mapView.addListener(listener);
         mapView.setMap(map);
-        linearLayout.addView(mapView);
+        mapLayout.addView(mapView);
+
+
+
+        SensorEventListener counter = new StepCounter(viewComb, button, orientation, listener, mapView, map);
+        sensorManager.registerListener(counter, accSensor,SensorManager.SENSOR_DELAY_FASTEST);
+
+        sensorManager.registerListener(orientation, mAcc,SensorManager.SENSOR_DELAY_UI);
+        sensorManager.registerListener(orientation, mMag,SensorManager.SENSOR_DELAY_UI);
     }
     @Override
     public void  onCreateContextMenu(ContextMenu  menu , View v, ContextMenu.ContextMenuInfo menuInfo)

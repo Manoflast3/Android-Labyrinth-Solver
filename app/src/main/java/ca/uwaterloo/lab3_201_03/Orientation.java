@@ -6,6 +6,8 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.widget.TextView;
 
+import java.util.List;
+
 class Orientation implements SensorEventListener{
 
 
