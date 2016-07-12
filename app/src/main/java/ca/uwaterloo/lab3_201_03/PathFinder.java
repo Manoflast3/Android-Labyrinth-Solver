@@ -8,7 +8,7 @@ import ca.uwaterloo.map.LineSegment;
 import ca.uwaterloo.map.NavigationalMap;
 
 /**
- * Created by manof on 2016-07-10.
+ * Created by Derek on 2016-07-10.
  *
  * This is a findPath algorithm using the Pledge Algorithm
  */
@@ -26,6 +26,7 @@ public class PathFinder {
     private PointF lastpoint = currentLocation;
     private PointF temppoint = lastpoint;
     private final float stepValue = 0.5f;
+    private final float smallOffset = 0.1f;
 
     private LineSegment followedWall;
 
@@ -47,56 +48,58 @@ public class PathFinder {
             userPath.add(lastpoint);
 
             // Proceed with Wall following algorithm IF the solution has not yet been found.
-            if (!source.calculateIntersections(lastpoint,userEnd).isEmpty()){
-                while (!source.calculateIntersections(lastpoint, userEnd).isEmpty()) {
-                    switch (cDirection) {
-                        case "up":
-                            takeStep(temppoint, cDirection);
-                            // if the next step goes through a wall.
-                            if (!source.calculateIntersections(lastpoint, temppoint).isEmpty()){
-                                lastpoint.set(source.calculateIntersections(lastpoint, temppoint).get(0).getPoint());
-                                followedWall = source.getGeometryAtPoint(lastpoint).get(0);
-                                cDirection = "right";
-                                sumofTurns++;
+            while (!source.calculateIntersections(lastpoint, userEnd).isEmpty()) {
+                switch (cDirection) {
+                    case "up":
+                        takeStep(temppoint, cDirection);
+                        // if the next step goes through a wall.
+                        if (!source.calculateIntersections(lastpoint, temppoint).isEmpty()){
+                            lastpoint.set(source.calculateIntersections(lastpoint, temppoint).get(0).getPoint());
+                            temppoint.set(lastpoint);
+                            userPath.add(lastpoint);
+                            followedWall = source.getGeometryAtPoint(lastpoint).get(0);
+                            cDirection = "right";
+                            sumofTurns++;
+                        }
+                        // if the next step goes past the currently followed wall.
+                        // TODO check if these values are correct for Max and Min fns.
+                        else if (temppoint.y > Math.max(followedWall.start.y, followedWall.end.y)){
+                            if (sumofTurns==0){
+                                cDirection = "up";
                             }
-                            // if the next step goes past the currently followed wall.
-                            // TODO check if these values are correct for Max and Min fns.
-                            else if (temppoint.y > Math.max(followedWall.start.y, followedWall.end.y)){
-                                if (sumofTurns==0){
-                                    cDirection = "up";
+                            else {
+                                lastpoint.set(Math.min(followedWall.start.x, followedWall.end.x), Math.max(followedWall.start.y, followedWall.end.y));
+                                List<LineSegment> wallsAtPoint = source.getGeometryAtPoint(lastpoint);
+                                temppoint = lastpoint;
+                                if (wallsAtPoint.size()==1) {
+                                    followedWall = wallsAtPoint.get(0);
+                                }
+                                else if (wallsAtPoint.size()>1){
+                                    followedWall = (!wallsAtPoint.get(0).theSame(followedWall)) ? wallsAtPoint.get(0) : wallsAtPoint.get(1);
                                 }
                                 else {
-                                    lastpoint.set(Math.min(followedWall.start.x, followedWall.end.x), Math.max(followedWall.start.y, followedWall.end.y));
-                                    List<LineSegment> wallsAtPoint = source.getGeometryAtPoint(lastpoint);
-                                    if (wallsAtPoint.size()==1) {
-                                        followedWall = wallsAtPoint.get(0);
-                                    }
-                                    else if (wallsAtPoint.size()>1){
-                                        followedWall = (!wallsAtPoint.get(0).theSame(followedWall)) ? wallsAtPoint.get(0) : wallsAtPoint.get(1);
-                                    }
-                                    else {
-                                        System.out.println("Error!");
-                                    }
-                                    cDirection = "left";
-                                    sumofTurns--;
+                                    System.out.println("Error!");
                                 }
+                                cDirection = "left";
+                                userPath.add(lastpoint);
+                                sumofTurns--;
                             }
-                            break;
+                        }
+                        break;
 
-                        case "down":
-                            followWall(source);
-                            break;
+                    case "down":
+                        followWall(source);
+                        break;
 
-                        case "right":
-                            followWall(source);
-                            break;
+                    case "right":
+                        followWall(source);
+                        break;
 
-                        case "left":
-                            followWall(source);
-                            break;
-                        default:
-                            break;
-                    }
+                    case "left":
+                        followWall(source);
+                        break;
+                    default:
+                        break;
                 }
             }
         }
@@ -106,7 +109,7 @@ public class PathFinder {
         return userPath;
     }
 
-    public void setupPath( NavigationalMap source){
+    public String setupPath(NavigationalMap source){
         while(source.calculateIntersections(lastpoint, temppoint).isEmpty()){
             takeStep(temppoint, cDirection);
             if (source.calculateIntersections(temppoint, userEnd).isEmpty()){
@@ -121,24 +124,25 @@ public class PathFinder {
         followedWall = source.getGeometryAtPoint(lastpoint).get(0);
         cDirection = "right";
         sumofTurns++;
+        return cDirection;
     }
 
-    public PointF takeStep(PointF temppoint, String cDirection){
+    public PointF takeStep(PointF point, String cDirection){
         switch (cDirection){
             case "up":
-                temppoint.offset((float)(-Math.sin(angle)*stepValue), (float)(Math.cos(angle)*stepValue));
+                point.offset((float)(-Math.sin(angle)*stepValue), (float)(Math.cos(angle)*stepValue));
                 break;
             case "down":
-                temppoint.offset((float)(Math.sin(angle)*stepValue), (float)(-Math.cos(angle)*stepValue));
+                point.offset((float)(Math.sin(angle)*stepValue), (float)(-Math.cos(angle)*stepValue));
                 break;
             case "right":
-                temppoint.offset((float)(Math.cos(angle)*stepValue), (float)(Math.sin(angle)*stepValue));
+                point.offset((float)(Math.cos(angle)*stepValue), (float)(Math.sin(angle)*stepValue));
                 break;
             case "left":
-                temppoint.offset((float)(-Math.cos(angle)*stepValue), (float)(-Math.sin(angle)*stepValue));
+                point.offset((float)(-Math.cos(angle)*stepValue), (float)(-Math.sin(angle)*stepValue));
                 break;
         }
-        return temppoint;
+        return point;
     }
 
     public void followWall(NavigationalMap source){
@@ -146,6 +150,10 @@ public class PathFinder {
         // if the next step goes through a wall.
         if (!source.calculateIntersections(lastpoint, temppoint).isEmpty()){
             lastpoint.set(source.calculateIntersections(lastpoint, temppoint).get(0).getPoint());
+            temppoint.set(lastpoint.x + smallOffset, lastpoint.y + smallOffset);
+
+            // TODO figure out of Temppoint or Lastpoint make more sense.
+            userPath.add(lastpoint);
             followedWall = source.getGeometryAtPoint(lastpoint).get(0);
             switch (cDirection) {
                 case "down":
@@ -168,18 +176,25 @@ public class PathFinder {
                 if (temppoint.y < Math.min(followedWall.start.y, followedWall.end.y)){
                     cDirection = "right";
                     lastpoint.set(Math.max(followedWall.start.x, followedWall.end.x), Math.min(followedWall.start.y, followedWall.end.y));
+                    //TODO see if we need this offset or not.
+                    temppoint.set(lastpoint.x, lastpoint.y);
+                    userPath.add(lastpoint);
                 }
                 break;
             case "right":
                 if (temppoint.y > Math.max(followedWall.start.x, followedWall.end.x)) {
                     cDirection = "up";
                     lastpoint.set(Math.max(followedWall.start.x, followedWall.end.x), Math.max(followedWall.start.y, followedWall.end.y));
+                    temppoint.set(lastpoint.x, lastpoint.y);
+                    userPath.add(lastpoint);
                 }
                 break;
             case "left":
                 if (temppoint.y < Math.min(followedWall.start.y, followedWall.end.y)) {
                     cDirection = "down";
                     lastpoint.set(Math.min(followedWall.start.x, followedWall.end.x), Math.min(followedWall.start.y, followedWall.end.y));
+                    temppoint.set(lastpoint.x, lastpoint.y);
+                    userPath.add(lastpoint);
                 }
                 break;
         }
