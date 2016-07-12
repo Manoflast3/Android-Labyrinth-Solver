@@ -25,6 +25,9 @@ public class PathFinder {
 
     private PointF lastpoint = currentLocation;
     private PointF temppoint = lastpoint;
+    // TODO finish implementing forwardpoint logic
+    private PointF forwardpoint = lastpoint;
+
     private final float stepValue = 0.5f;
     private final float smallOffset = 0.1f;
 
@@ -46,6 +49,7 @@ public class PathFinder {
         else{
             setupPath(source);
             userPath.add(lastpoint);
+            takeStep(forwardpoint, cDirection);
 
             // Proceed with Wall following algorithm IF the solution has not yet been found.
             while (!source.calculateIntersections(lastpoint, userEnd).isEmpty()) {
