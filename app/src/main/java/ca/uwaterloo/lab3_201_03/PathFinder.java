@@ -5,6 +5,7 @@ import android.graphics.PointF;
 import java.util.ArrayList;
 import java.util.List;
 
+import ca.uwaterloo.map.VectorUtils;
 import ca.uwaterloo.sensortoy.LineSegment;
 import ca.uwaterloo.sensortoy.NavigationalMap;
 
@@ -38,7 +39,7 @@ public class PathFinder {
     private PointF refPoint = new PointF(currentLocation.x , currentLocation.y);
     private int counter = 0;
 
-    private final float stepValue = 0.3f;
+    private final float stepValue = 1.5f;
 
     // TODO need the angle of the map. This angle is measured from the vertical, from 0 to 180 degrees.
     // (doesn't go to 180 though).
@@ -52,7 +53,7 @@ public class PathFinder {
 
         userPath.clear();
         userPath.add(currentLocation);
-        temppoint.set(currentLocation);
+        temppoint = new PointF(currentLocation.x, currentLocation.y);
         forwardPoint.set(currentLocation);
 
         // If a direct path can be made.
@@ -69,27 +70,33 @@ public class PathFinder {
                 switch (cDirection) {
                     case "up":
                         followWall(source);
-                        userPath.add(temppoint);
                         break;
                     case "down":
                         followWall(source);
-                        userPath.add(temppoint);
                         break;
                     case "right":
                         followWall(source);
-                        userPath.add(temppoint);
                         break;
 
                     case "left":
                         followWall(source);
-                        userPath.add(temppoint);
                         break;
                     default:
                         break;
                 }
+                userPath.add(temppoint);
             }
         }
-        userPath.add(temppoint);
+//   //     int index =0;
+//   //     for(int i=0; i<userPath.size(); i++){
+//            float min = VectorUtils.distance(userPath.get(0), userEnd);
+//            if (VectorUtils.distance(userPath.get(i), userEnd)< min){
+//                min = VectorUtils.distance(userPath.get(i), userEnd);
+//                index = i;
+//            }
+//        }
+//    //    userPath.subList(index-1, userPath.size()).clear();
+//    //    userPath.add(userPath.get(index));
         userPath.add(userEnd);
 
         return userPath;
@@ -105,16 +112,24 @@ public class PathFinder {
             case "up":
                 takeStep(refPoint, "left");
                 takeStep(refPoint, "left");
+                takeStep(refPoint, "left");
+                takeStep(refPoint, "left");
                 break;
             case "down":
+                takeStep(refPoint, "right");
+                takeStep(refPoint, "right");
                 takeStep(refPoint, "right");
                 takeStep(refPoint, "right");
                 break;
             case "right":
                 takeStep(refPoint, "up");
                 takeStep(refPoint, "up");
+                takeStep(refPoint, "up");
+                takeStep(refPoint, "up");
                 break;
             case "left":
+                takeStep(refPoint, "down");
+                takeStep(refPoint, "down");
                 takeStep(refPoint, "down");
                 takeStep(refPoint, "down");
                 break;
@@ -143,6 +158,7 @@ public class PathFinder {
             sumofTurns++;
         }
         else if ((source.calculateIntersections(forwardPoint, refPoint).isEmpty())) {
+            System.out.println("swag");
             temppoint.set(forwardPoint);
             switch (cDirection) {
                 case "up":
@@ -182,10 +198,10 @@ public class PathFinder {
                 point.offset((float) (-Math.sin(angle) * stepValue), (float) (Math.cos(angle) * stepValue));
                 break;
             case "right":
-                point.offset((float) (-Math.cos(angle) * stepValue), (float) (-Math.sin(angle) * stepValue));
+                point.offset((float) (Math.cos(angle) * stepValue), (float) (Math.sin(angle) * stepValue));
                 break;
             case "left":
-                point.offset((float) (Math.cos(angle) * stepValue), (float) (Math.sin(angle) * stepValue));
+                point.offset((float) (-Math.cos(angle) * stepValue), (float) (-Math.sin(angle) * stepValue));
                 break;
         }
         return point;

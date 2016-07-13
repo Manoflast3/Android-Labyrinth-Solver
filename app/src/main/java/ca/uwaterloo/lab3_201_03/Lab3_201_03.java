@@ -34,7 +34,7 @@ public class Lab3_201_03 extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lab3_201_03);
 
-        mapView = new  MapView(getApplicationContext(), 800, 800, 35, 35);
+        mapView = new  MapView(getApplicationContext(), 650,650, 25, 25);
 
         // Locks Screen Orientation
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
@@ -74,7 +74,7 @@ public class Lab3_201_03 extends AppCompatActivity{
 
 
         registerForContextMenu(mapView);
-        NavigationalMap map = MapLoader.loadMap(getExternalFilesDir(null),"Lab-room-peninsula.svg");
+        NavigationalMap map = MapLoader.loadMap(getExternalFilesDir(null),"E2-3344.svg");
         newListener listener = new newListener(map);
         mapView.addListener(listener);
         mapView.setMap(map);
