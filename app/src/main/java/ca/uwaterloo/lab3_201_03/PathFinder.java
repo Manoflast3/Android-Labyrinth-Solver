@@ -56,24 +56,7 @@ public class PathFinder {
 
         } else {
             // Setup path
-            forwardPoint.set(temppoint);
-            while (source.calculateIntersections(currentLocation, forwardPoint).isEmpty()) {
-                takeStep(temppoint, cDirection);
-                forwardPoint.set(temppoint);
-                takeStep(forwardPoint, cDirection);
-                if (source.calculateIntersections(temppoint, userEnd).isEmpty()) {
-                    lastpoint.set(temppoint);
-                    break;
-                }
-            }
-            if (lastpoint.x != temppoint.x || lastpoint.y != temppoint.y) {
-                lastpoint.set(temppoint);
-            }
-            cDirection = "right";
-            // sumofTurns++;
-            userPath.add(lastpoint);
-            takeStep(temppoint, cDirection);
-            takeStep(forwardPoint, cDirection);
+            lastpoint.set(currentLocation);
 
             // Proceed with Wall following algorithm IF the solution has not yet been found.
             while (!source.calculateIntersections(temppoint, userEnd).isEmpty()) {
@@ -127,28 +110,13 @@ public class PathFinder {
         // Refpoint checks if the next step goes beyond the current wall.
         forwardPoint.set(temppoint);
         takeStep(forwardPoint, cDirection);
-        refPoint.set(forwardPoint);
-        switch (cDirection) {
-            case "up":
-                takeStep(refPoint, "left");
-                break;
-            case "down":
-                takeStep(refPoint, "right");
-                break;
-            case "right":
-                takeStep(refPoint, "up");
-                break;
-            case "left":
-                takeStep(refPoint, "down");
-                break;
-        }
         // if the next step goes through a wall.
         if (!source.calculateIntersections(temppoint, forwardPoint).isEmpty()) {
             lastpoint.set(temppoint);
             userPath.add(lastpoint);
             switch (cDirection) {
                 case "up":
-                    cDirection = "left";
+                    cDirection = "right";
                     break;
                 case "down":
                     cDirection = "left";
