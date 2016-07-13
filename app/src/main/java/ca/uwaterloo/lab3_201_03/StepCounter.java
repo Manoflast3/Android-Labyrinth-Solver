@@ -183,7 +183,6 @@ class StepCounter implements SensorEventListener {
                         pCurrent.set(location[0], location[1]);
 
                         pathFinder.setCurentLoc(pCurrent);
-                        System.out.println("abc " + mapView.getDestinationPoint());
                         pathFinder.setUserEnd(mapView.getDestinationPoint());
                         mapView.setUserPath(pathFinder.findPath(map));
                     }

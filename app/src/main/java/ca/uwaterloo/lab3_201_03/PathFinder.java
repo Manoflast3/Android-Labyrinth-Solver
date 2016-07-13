@@ -22,6 +22,7 @@ public class PathFinder {
     // TODO need the value of the current user location, and the Destination (userend)!
     private PointF currentLocation = new PointF();
     private PointF userEnd = new PointF();
+    private int sumofTurns = 0;
 
     public void setCurentLoc(PointF current){
         this.currentLocation = current;
@@ -34,9 +35,10 @@ public class PathFinder {
     private PointF lastpoint = new PointF(currentLocation.x , currentLocation.y);
     private PointF temppoint = new PointF(currentLocation.x , currentLocation.y);
     private PointF forwardPoint = new PointF(currentLocation.x , currentLocation.y);
+    private PointF refPoint = new PointF(currentLocation.x , currentLocation.y);
     private int counter = 0;
 
-    private final float stepValue = 0.1f;
+    private final float stepValue = 0.3f;
 
     // TODO need the angle of the map. This angle is measured from the vertical, from 0 to 180 degrees.
     // (doesn't go to 180 though).
@@ -61,7 +63,7 @@ public class PathFinder {
             lastpoint.set(currentLocation);
 
             // Proceed with Wall following algorithm IF the solution has not yet been found.
-            while (!(source.calculateIntersections(temppoint, userEnd).isEmpty()) && counter < 3000) {
+            while (!(source.calculateIntersections(temppoint, userEnd).isEmpty()) && counter < 1000) {
                 counter++;
                 temppoint = new PointF(temppoint.x, temppoint.y);
                 switch (cDirection) {
@@ -98,11 +100,31 @@ public class PathFinder {
         // Refpoint checks if the next step goes beyond the current wall.
         forwardPoint.set(temppoint);
         takeStep(forwardPoint, cDirection);
+        refPoint.set(forwardPoint);
+        switch (cDirection) {
+            case "up":
+                takeStep(refPoint, "left");
+                takeStep(refPoint, "left");
+                break;
+            case "down":
+                takeStep(refPoint, "right");
+                takeStep(refPoint, "right");
+                break;
+            case "right":
+                takeStep(refPoint, "up");
+                takeStep(refPoint, "up");
+                break;
+            case "left":
+                takeStep(refPoint, "down");
+                takeStep(refPoint, "down");
+                break;
+        }
+
         // if the next step goes through a wall.
         if ((source.calculateIntersections(temppoint, forwardPoint).isEmpty())) {
             takeStep(temppoint, cDirection);
         }
-        else {
+        else if(!source.calculateIntersections(temppoint, forwardPoint).isEmpty()) {
             lastpoint.set(temppoint);
             switch (cDirection) {
                 case "up":
@@ -118,8 +140,39 @@ public class PathFinder {
                     cDirection = "up";
                     break;
             }
+            sumofTurns++;
+        }
+        else if ((source.calculateIntersections(forwardPoint, refPoint).isEmpty())) {
+            temppoint.set(forwardPoint);
+            switch (cDirection) {
+                case "up":
+                    if (sumofTurns == 0){
+                        cDirection = "up";
+                        takeStep(temppoint, cDirection);
+                    }
+                    else {
+                        cDirection = "left";
+                        takeStep(temppoint, cDirection);
+                    }
+                    break;
+                case "down":
+                    cDirection = "right";
+                    takeStep(temppoint, cDirection);
+                    break;
+                case "right":
+                    cDirection = "down";
+                    takeStep(temppoint, cDirection);
+                    break;
+                case "left":
+                    cDirection = "up";
+                    takeStep(temppoint, cDirection);
+                    break;
+            }
+            lastpoint.set(temppoint);
+            sumofTurns--;
         }
     }
+
     public PointF takeStep(PointF point, String cDirection) {
         switch (cDirection) {
             case "up":
