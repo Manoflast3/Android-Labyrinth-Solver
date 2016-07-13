@@ -239,6 +239,16 @@
             android:layout_below="@+id/map"
             android:layout_centerHorizontal="true" />
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Still not there!"
+            android:id="@+id/destination"
+            android:layout_below="@+id/textView"
+            android:layout_centerHorizontal="true"
+            android:textColor="#000" />
+
 
     </RelativeLayout>
 </ScrollView>

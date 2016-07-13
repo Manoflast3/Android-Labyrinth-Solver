@@ -26,7 +26,7 @@ import ca.uwaterloo.sensortoy.PositionListener;
 class StepCounter implements SensorEventListener {
     //2 textviews; both current and max are passed into the listener at the same time.
     protected int totalStepCount;
-    private TextView stepView, dirView, locView;
+    private TextView stepView, dirView, locView, destinationView;
     private Orientation orientation;
     private float direction;
     private float[] location = {0,0};
@@ -42,6 +42,7 @@ class StepCounter implements SensorEventListener {
         stepView = viewComb[0];
         dirView = viewComb[1];
         locView = viewComb[2];
+        destinationView = viewComb[3];
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 reset();
@@ -63,6 +64,7 @@ class StepCounter implements SensorEventListener {
     private boolean period = true;
 
     public void reset() {
+        destinationView.setText("Still not there!");
         totalStepCount = 0;
         state = 0;
         period = true;
@@ -160,18 +162,36 @@ class StepCounter implements SensorEventListener {
 
             } else if (state == 7) {
                 if (current > -0.5 && current < 0) {
-                    totalStepCount++;
                     state = 0;
-                    location[1] -= Math.cos((double)temp*100/180/100*Math.PI)*stepLength;
-                    location[0] += Math.sin((double)temp*100/180/100*Math.PI)*stepLength;
-                    locView.setText(String.format("(%.1f,%.1f)",location[0],location[1]));
+                    PointF pPrevious = new PointF(location[0],location[1]);
+                    float nextX = location[0] + (float)Math.sin((double)temp*100/180/100*Math.PI)*stepLength;
+                    float nextY = location[1] - (float)Math.cos((double)temp*100/180/100*Math.PI)*stepLength;
+                    PointF pNext = new PointF(nextX,nextY);
+                    System.out.println("abc"+(map.calculateIntersections(pPrevious, pNext).size()));
+                    System.out.println("zzz"+ pPrevious + "  " + pNext);
+                    if(map.calculateIntersections(pPrevious, pNext).size()==0) {
+                        totalStepCount++;
+                        location[0] = nextX;
+                        location[1] = nextY;
+                        locView.setText(String.format("(%.1f,%.1f)", location[0], location[1]));
+                        if((int)location[0]==(int)mapView.getDestinationPoint().x
+                                && (int)location[1]==(int)mapView.getDestinationPoint().y){
+                            destinationView.setText("You reached your destination!");
+                        }
 
-                    PointF pTemp = new PointF();
-                    pTemp.set(location[0],location[1]);
-                    pathFinder.setCurentLoc(pTemp);
-                    System.out.println("abc "+ mapView.getDestinationPoint());
-                    pathFinder.setUserEnd(mapView.getDestinationPoint());
-                    mapView.setUserPath(pathFinder.findPath(map));
+                        PointF pCurrent = new PointF();
+                        pCurrent.set(location[0], location[1]);
+
+                        pathFinder.setCurentLoc(pCurrent);
+                        System.out.println("abc " + mapView.getDestinationPoint());
+                        pathFinder.setUserEnd(mapView.getDestinationPoint());
+                        mapView.setUserPath(pathFinder.findPath(map));
+                    }
+
+
+
+
+
 
 
                     positionHandler.takeStep(mapView, location[0], location[1]);

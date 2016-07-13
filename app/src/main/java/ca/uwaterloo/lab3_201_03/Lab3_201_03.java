@@ -49,11 +49,12 @@ public class Lab3_201_03 extends AppCompatActivity{
         TextView [] Sensor = {Current, Max};
         TextView OView = (TextView) findViewById(R.id.orientation);
 
+        TextView destination = (TextView) findViewById(R.id.destination);
         TextView stepCount = (TextView)findViewById(R.id.stepCount);
         Button button = (Button) findViewById(R.id.start2);
         TextView dirView = (TextView)findViewById(R.id.direction);
         TextView locView = (TextView)findViewById(R.id.location);
-        TextView[] viewComb = {stepCount, dirView, locView};
+        TextView[] viewComb = {stepCount, dirView, locView, destination};
         Orientation orientation = new Orientation(OView);
 
 
@@ -78,7 +79,6 @@ public class Lab3_201_03 extends AppCompatActivity{
         mapView.addListener(listener);
         mapView.setMap(map);
         mapLayout.addView(mapView);
-
 
 
         SensorEventListener counter = new StepCounter(viewComb, button, orientation, listener, mapView, map);

@@ -67,12 +67,12 @@ public class newListener implements PositionListener {
         source.setUserPoint(loc);
         source.setOriginPoint(loc);
         originPoint = source.getOriginPoint();
-
-        PathFinder pathFinder = new PathFinder();
-        pathFinder.setCurentLoc(source.getOriginPoint());
-
-        pathFinder.setUserEnd(source.getDestinationPoint());
-        source.setUserPath(pathFinder.findPath(navMap));
+//
+//        PathFinder pathFinder = new PathFinder();
+//        pathFinder.setCurentLoc(source.getOriginPoint());
+//
+//        pathFinder.setUserEnd(source.getDestinationPoint());
+//        source.setUserPath(pathFinder.findPath(navMap));
 
     }
 

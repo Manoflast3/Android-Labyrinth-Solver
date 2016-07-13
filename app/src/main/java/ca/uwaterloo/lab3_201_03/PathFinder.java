@@ -18,11 +18,11 @@ public class PathFinder {
     private List<PointF> userPath = new ArrayList<PointF>();
     // This is the favored direction for the Pledge Algorithm
     private String cDirection = "up";
-    // private int sumofTurns = 0;
+    private int sumofTurns = 0;
 
     // TODO need the value of the current user location, and the Destination (userend)!
-    private PointF currentLocation = new PointF();
-    private PointF userEnd = new PointF();
+    private PointF currentLocation;
+    private PointF userEnd;
 
     public void setCurentLoc(PointF current){
         currentLocation = current;
@@ -32,12 +32,13 @@ public class PathFinder {
     }
 
 
-    private PointF lastpoint = new PointF(currentLocation.x , currentLocation.y);
-    private PointF temppoint = new PointF(currentLocation.x , currentLocation.y);
-    private PointF forwardPoint = new PointF(currentLocation.x , currentLocation.y);
-    private PointF refPoint = new PointF(currentLocation.x , currentLocation.y);
+    private PointF lastpoint = currentLocation;
+    private PointF temppoint = lastpoint;
+    private PointF forwardPoint = lastpoint;
+    private PointF refPoint = lastpoint;
 
-    private final float stepValue = 1.0f;
+    private final float stepValue = 0.5f;
+    private final float smallOffset = 0.1f;
 
     // TODO need the angle of the map. This angle is measured from the vertical, from 0 to 180 degrees.
     // (doesn't go to 180 though).
@@ -45,7 +46,6 @@ public class PathFinder {
     public void setAngle(double angle){
         this.angle = angle;
     }
-
 
     public List<PointF> findPath(NavigationalMap source) {
 
@@ -55,14 +55,41 @@ public class PathFinder {
         if (source.calculateIntersections(currentLocation, userEnd).isEmpty()) {
 
         } else {
-            // Setup path
-            lastpoint.set(currentLocation);
+            setupPath(source);
+            userPath.add(lastpoint);
+            takeStep(temppoint, cDirection);
+            takeStep(forwardPoint, cDirection);
 
             // Proceed with Wall following algorithm IF the solution has not yet been found.
-            while (!source.calculateIntersections(temppoint, userEnd).isEmpty()) {
+            while (!source.calculateIntersections(lastpoint, userEnd).isEmpty()) {
                 switch (cDirection) {
                     case "up":
-                        followWall(source);
+                        takeStep(forwardPoint, cDirection);
+                        refPoint.set(forwardPoint);
+                        takeStep(refPoint, "left");
+                        // if the next step goes through a wall.
+                        if (!source.calculateIntersections(temppoint, forwardPoint).isEmpty()) {
+                            lastpoint.set(temppoint);
+                            userPath.add(lastpoint);
+                            cDirection = "right";
+                            sumofTurns++;
+                        }
+                        // if the next step goes past the current wall.
+                        else if (source.calculateIntersections(forwardPoint, refPoint).isEmpty()) {
+                            if (sumofTurns == 0){
+                                // Keep going the same direction.
+                                takeStep(temppoint, cDirection);
+                            }
+                            else {
+                                temppoint.set(forwardPoint);
+                                lastpoint.set(temppoint);
+                                userPath.add(lastpoint);
+                                cDirection = "left";
+                                sumofTurns--;
+                            }
+                        } else {
+                            takeStep(temppoint, cDirection);
+                        }
                         break;
 
                     case "down":
@@ -87,6 +114,26 @@ public class PathFinder {
         return userPath;
     }
 
+    public String setupPath(NavigationalMap source) {
+        forwardPoint.set(temppoint);
+        takeStep(forwardPoint, cDirection);
+        while (source.calculateIntersections(temppoint, forwardPoint).isEmpty()) {
+            takeStep(temppoint, cDirection);
+            forwardPoint.set(temppoint);
+            takeStep(forwardPoint, cDirection);
+            if (source.calculateIntersections(temppoint, userEnd).isEmpty()) {
+                lastpoint.set(temppoint);
+                break;
+            }
+        }
+        if (lastpoint.x != temppoint.x || lastpoint.y != temppoint.y) {
+            lastpoint.set(temppoint);
+        }
+        cDirection = "right";
+        sumofTurns++;
+        return cDirection;
+    }
+
     public PointF takeStep(PointF point, String cDirection) {
         switch (cDirection) {
             case "up":
@@ -108,16 +155,24 @@ public class PathFinder {
     public void followWall(NavigationalMap source) {
         // Forward point checks if the next step goes through a wall.
         // Refpoint checks if the next step goes beyond the current wall.
-        forwardPoint.set(temppoint);
         takeStep(forwardPoint, cDirection);
+        refPoint.set(forwardPoint);
+        switch (cDirection) {
+            case "down":
+                takeStep(refPoint, "right");
+                break;
+            case "right":
+                takeStep(refPoint, "up");
+                break;
+            case "left":
+                takeStep(refPoint, "down");
+                break;
+        }
         // if the next step goes through a wall.
         if (!source.calculateIntersections(temppoint, forwardPoint).isEmpty()) {
             lastpoint.set(temppoint);
             userPath.add(lastpoint);
             switch (cDirection) {
-                case "up":
-                    cDirection = "right";
-                    break;
                 case "down":
                     cDirection = "left";
                     break;
@@ -128,7 +183,7 @@ public class PathFinder {
                     cDirection = "up";
                     break;
             }
-            // sumofTurns++;
+            sumofTurns++;
         }
         else if (source.calculateIntersections(forwardPoint, userEnd).isEmpty()){
             takeStep(temppoint, cDirection);
@@ -136,7 +191,6 @@ public class PathFinder {
             userPath.add(temppoint);
 
         }
-        /*
         // if the next step goes past the current wall.
         else if (source.calculateIntersections(forwardPoint, refPoint).isEmpty()) {
             temppoint.set(forwardPoint);
@@ -154,8 +208,7 @@ public class PathFinder {
             lastpoint.set(temppoint);
             userPath.add(lastpoint);
             sumofTurns--;
-        } */
-        else {
+        } else {
             takeStep(temppoint, cDirection);
         }
     }
