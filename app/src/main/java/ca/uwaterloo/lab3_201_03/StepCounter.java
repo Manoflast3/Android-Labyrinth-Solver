@@ -179,6 +179,8 @@ class StepCounter implements SensorEventListener {
                             destinationView.setText("You reached your destination!");
                         }
 
+
+                        mapView.userPath.clear();
                         PointF pCurrent = new PointF();
                         pCurrent.set(location[0], location[1]);
 

@@ -62,7 +62,7 @@ public class MapView extends View
             userPoint = new PointF(),
             selectPoint = new PointF();
     
-    private List<PointF> userPath = new ArrayList<PointF>();
+    public List<PointF> userPath = new ArrayList<PointF>();
     
     private int SET_LOCATION_ID = 0;
     private int SET_DESTINATION_ID = 1;
