@@ -174,12 +174,6 @@ class StepCounter implements SensorEventListener {
                     mapView.setUserPath(pathFinder.findPath(map));
 
 
-
-
-
-
-
-
                     positionHandler.takeStep(mapView, location[0], location[1]);
                 } else if (Math.abs(current) > 5) {
                     state = 0;
