@@ -64,6 +64,7 @@ class StepCounter implements SensorEventListener {
     private boolean period = true;
 
     public void reset() {
+
         destinationView.setText("Still not there!");
         totalStepCount = 0;
         state = 0;
@@ -179,13 +180,8 @@ class StepCounter implements SensorEventListener {
                             destinationView.setText("You reached your destination!");
                         }
 
-                        PointF pCurrent = new PointF();
-                        pCurrent.set(location[0], location[1]);
 
-                        pathFinder.setCurentLoc(pCurrent);
-                        System.out.println("abc " + mapView.getDestinationPoint());
-                        pathFinder.setUserEnd(mapView.getDestinationPoint());
-                        mapView.setUserPath(pathFinder.findPath(map));
+                        mapView.userPath.clear();
                     }
 
 
@@ -193,8 +189,12 @@ class StepCounter implements SensorEventListener {
 
 
 
-
                     positionHandler.takeStep(mapView, location[0], location[1]);
+                    PointF pCurrent = new PointF(nextX, nextY);
+
+                    pathFinder.setCurentLoc(mapView.getUserPoint());
+                    pathFinder.setUserEnd(mapView.getDestinationPoint());
+                    mapView.setUserPath(pathFinder.findPath(map));
                 } else if (Math.abs(current) > 5) {
                     state = 0;
                 }
